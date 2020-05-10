@@ -1,22 +1,33 @@
-import React from 'react'
-import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import React from "react";
+import { connect } from "react-redux";
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
+import User from "./classes/User";
+import Login from "./pages/Login/Login";
+import { RootState } from "./store";
 
-import { Navbar } from './components/Navbar'
-import { About } from './pages/About'
-import { Home } from './pages/Home'
-
-const App: React.FC = () => {
-  return (
-    <BrowserRouter>
-      <Navbar />
-      <div className="container">
-        <Switch>
-          <Route path="/" component={Home} exact />
-          <Route path="/about" component={About} />
-        </Switch>
-      </div>
-    </BrowserRouter>
-  )
+interface Props {
+    user: User | undefined;
 }
 
-export default App
+class App extends React.Component<Props> {
+    render() {
+        return (
+            <BrowserRouter>
+                {this.props.user === undefined ? (
+                    <Redirect to="/login" />
+                ) : null}
+                <Switch>
+                    <Route path="/login" component={Login} exact />
+                </Switch>
+            </BrowserRouter>
+        );
+    }
+}
+
+function mapStateToProps(state: RootState) {
+    return {
+        user: state.userState.user,
+    };
+}
+
+export default connect(mapStateToProps)(App);
