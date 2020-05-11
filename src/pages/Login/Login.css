@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Gudea:wght@400;700&family=Noto+Sans+TC:wght@100;300;400;500;700&display=swap");
 
-body {
+.loginPage {
     -webkit-perspective: 800px;
     perspective: 800px;
     height: 100vh;
@@ -18,11 +18,11 @@ body {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#EA5C54 ', endColorstr='#bb6dec',GradientType=1 );
 }
 
-body ::-webkit-input-placeholder {
+.loginPage ::-webkit-input-placeholder {
     color: #4e546d;
 }
 
-p {
+.loginPage p {
     color: #5b5e6f;
     font-size: 10px;
     text-align: left;
@@ -178,7 +178,7 @@ p {
     transition-duration: 0.6s;
 }
 
-.brand {
+.loginpage > .brand {
     position: absolute;
     left: 20px;
     bottom: 14px;

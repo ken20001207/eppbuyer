@@ -1,5 +1,5 @@
 export default class User {
-    id: number;
+    id: string;
     email: string;
     email_verified: boolean;
     expiry_time: Date;
@@ -8,7 +8,7 @@ export default class User {
     last_pay_time: Date;
     last_pay_money: number;
 
-    constructor(data: User) {
+    constructor(data: User = emptyUser) {
         this.id = data.id;
         this.email = data.email;
         this.email_verified = data.email_verified;
@@ -19,3 +19,14 @@ export default class User {
         this.last_pay_money = data.last_pay_money;
     }
 }
+
+const emptyUser = {
+    id: "",
+    email: "",
+    email_verified: false,
+    expiry_time: new Date(),
+    total: 0,
+    pay_times_count: 0,
+    last_pay_time: new Date(),
+    last_pay_money: 0,
+};

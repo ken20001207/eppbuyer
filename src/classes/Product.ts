@@ -61,7 +61,7 @@ export default class Product {
 }
 
 /** 後端發送過來的 Product 資料 */
-interface Product_SQL {
+export interface Product_SQL {
     project_name: string;
     product_id: string;
     product_name: string;

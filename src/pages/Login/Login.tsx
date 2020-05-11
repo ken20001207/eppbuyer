@@ -1,19 +1,57 @@
 import React from "react";
+import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
+import Cookies from "universal-cookie";
+import Product from "../../classes/Product";
+import { Project } from "../../classes/Project";
+import User from "../../classes/User";
+import getproducts, { GetProductsResponseType } from "../../functions/getproducts";
+import getprojects, { GetProjectsResponseType } from "../../functions/getprojects";
+import login, { LoginResponseType } from "../../functions/login";
+import { UpdateProduct } from "../../redux/products/actions";
+import { UpdateProject } from "../../redux/projects/actions";
+import { SelectProject, UpdateToken } from "../../redux/system/actions";
+import { UpdateUser } from "../../redux/user/actions";
+import { RootStateType } from "../../rootReducer";
+import store from "../../store";
 import "./Login.css";
 
+const cookies = new Cookies();
 interface States {
     username: string;
     password: string;
     remember: boolean;
     errUserName: boolean;
     errPwd: boolean;
+    redirectTo: string | undefined;
 }
 
 interface Props {
-    setToken: (token: string) => void;
+    user: User;
+    updateUser: (user: User) => void;
+    updateToken: (token: string) => void;
+    updateProject: (project: Project) => void;
+    updateProduct: (product: Product) => void;
+    selectProject: (id: string) => void;
 }
 
-export default class Login extends React.Component<Props, States> {
+function mapStateToProps(state: RootStateType) {
+    return {
+        user: state.user,
+    };
+}
+
+function mapDispatchToProps(dispatch: typeof store.dispatch) {
+    return {
+        updateUser: (user: User) => dispatch(UpdateUser(user)),
+        updateToken: (token: string) => dispatch(UpdateToken(token)),
+        updateProject: (project: Project) => dispatch(UpdateProject(project)),
+        updateProduct: (product: Product) => dispatch(UpdateProduct(product)),
+        selectProject: (id: string) => dispatch(SelectProject(id)),
+    };
+}
+
+class Login extends React.Component<Props, States> {
     errName: HTMLSpanElement | null = null;
     errPwd: HTMLSpanElement | null = null;
     errNameText: string = "";
@@ -29,6 +67,7 @@ export default class Login extends React.Component<Props, States> {
             remember: false,
             errUserName: false,
             errPwd: false,
+            redirectTo: undefined,
         };
     }
 
@@ -59,32 +98,41 @@ export default class Login extends React.Component<Props, States> {
         }
     };
 
-    async login() {
-        let formData = new FormData();
-        formData.append("account", this.state.username);
-        formData.append(
-            "pwd",
-            new Buffer(this.state.password).toString("base64")
-        );
-        if (this.state.remember) {
-            formData.append("remember", "on");
-        }
-        await fetch("/login/loginR.php", {
-            method: "POST",
-            body: formData,
-        })
-            .then(function (response) {
-                return response.text();
-            })
-            .then((text) => {
-                let resArr = text.split(",");
-                if (resArr[0] === "pass") {
-                    this.props.setToken(resArr[1]);
-                } else {
-                    this.showErrMsg(resArr[1]);
-                }
-            });
-    }
+    login = async () => {
+        login(this.state.username, this.state.password).then(async (res) => {
+            if (res.status === 200) {
+                const resdata = ((await res.json()) as unknown) as LoginResponseType;
+                const token = resdata.token;
+                this.props.updateUser(new User(resdata.userdata));
+                this.props.updateToken(token);
+                getprojects(token).then(async (res) => {
+                    if (res.status === 200) {
+                        const resdata = ((await res.json()) as unknown) as GetProjectsResponseType;
+                        resdata.projects.map((p) => {
+                            this.props.updateProject(new Project(p));
+                            return null;
+                        });
+                        this.props.selectProject(resdata.projects[0].project_name);
+                        getproducts(token, resdata.projects[0].project_name).then(async (res) => {
+                            if (res.status === 200) {
+                                const resdata = ((await res.json()) as unknown) as GetProductsResponseType;
+                                resdata.products.map((p) => {
+                                    this.props.updateProduct(new Product(p));
+                                    return null;
+                                });
+                            }
+                        });
+                    } else alert("獲取專案清單失敗，請聯繫客服人員 (" + res.status + ")");
+                });
+                this.setState({ redirectTo: "/products" });
+                if (this.state.remember) cookies.set("token", resdata.token);
+            } else if (res.status === 404) {
+                alert("使用者名稱或密碼錯誤");
+            } else {
+                alert("伺服器發生錯誤，請聯繫客服中心");
+            }
+        });
+    };
 
     hideUserNameErrMsg = () => {
         this.setState({ errUserName: false });
@@ -104,42 +152,15 @@ export default class Login extends React.Component<Props, States> {
         }
     };
 
-    checkboxHandler = () => {
-        this.setState({ remember: !this.state.remember });
-    };
-
-    showErrMsg(errStr: string) {
-        switch (errStr) {
-            case "account error":
-                this.errNameText = "沒有該帳號";
-                this.setState({ errUserName: true });
-                break;
-            case "password error":
-                this.errPwdText = "密碼錯誤";
-                this.setState({ errPwd: true });
-                break;
-            case "account or password error":
-                alert("帳號或密碼錯誤");
-                break;
-            default:
-                alert("錯誤");
-                break;
-        }
-    }
-
     render() {
+        if (this.props.user.id !== "") {
+            return <Redirect to="/products" />;
+        }
         return (
-            <div>
+            <div className="loginPage">
                 <div className="brand">
-                    <a
-                        href="https://www.jamiecoulter.co.uk"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <img
-                            src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/logo.png"
-                            alt=""
-                        />
+                    <a href="https://www.jamiecoulter.co.uk" target="_blank" rel="noopener noreferrer">
+                        <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/logo.png" alt="" />
                     </a>
                 </div>
                 <div className="login">
@@ -149,18 +170,13 @@ export default class Login extends React.Component<Props, States> {
                     <div className="login_fields">
                         <div className="login_fields__user">
                             <div className="icon">
-                                <img
-                                    src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/user_icon_copy.png"
-                                    alt=""
-                                />
+                                <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/user_icon_copy.png" alt="" />
                             </div>
                             <input
                                 name="username"
                                 placeholder="Username"
                                 type="email"
-                                onChange={(e) =>
-                                    this.setState({ username: e.target.value })
-                                }
+                                onChange={(e) => this.setState({ username: e.target.value })}
                                 value={this.state.username}
                                 autoComplete="off"
                                 onFocus={this.hideUserNameErrMsg}
@@ -169,10 +185,7 @@ export default class Login extends React.Component<Props, States> {
                                 }}
                                 onKeyDown={this.enterKeyPressHandler}
                             />
-                            <div
-                                className="validation"
-                                hidden={!this.state.errUserName}
-                            >
+                            <div className="validation" hidden={!this.state.errUserName}>
                                 <span
                                     ref={(span) => {
                                         this.errName = span;
@@ -185,18 +198,13 @@ export default class Login extends React.Component<Props, States> {
                         </div>
                         <div className="login_fields__password">
                             <div className="icon">
-                                <img
-                                    src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/lock_icon_copy.png"
-                                    alt=""
-                                />
+                                <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/lock_icon_copy.png" alt="" />
                             </div>
                             <input
                                 name="password"
                                 placeholder="Password"
                                 type="password"
-                                onChange={(e) =>
-                                    this.setState({ password: e.target.value })
-                                }
+                                onChange={(e) => this.setState({ password: e.target.value })}
                                 value={this.state.password}
                                 autoComplete="off"
                                 onFocus={this.hidePwdErrMsg}
@@ -220,17 +228,17 @@ export default class Login extends React.Component<Props, States> {
                             <input
                                 type="checkbox"
                                 id="checkbox"
-                                onChange={this.checkboxHandler}
+                                onChange={(e) =>
+                                    this.setState({
+                                        remember: e.target.checked,
+                                    })
+                                }
                             />
-                            <label htmlFor="checkbox">自動登入</label>
+                            <label htmlFor="checkbox">保持登入狀態</label>
                             <br />
                         </div>
                         <div className="login_fields__submit">
-                            <input
-                                type="submit"
-                                defaultValue="Log In"
-                                onClick={this.loginValidation}
-                            />
+                            <input type="submit" defaultValue="Log In" onClick={this.loginValidation} />
                             <div className="forgot">
                                 <a href="/">Forgotten password?</a>
                             </div>
@@ -244,3 +252,5 @@ export default class Login extends React.Component<Props, States> {
         );
     }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
