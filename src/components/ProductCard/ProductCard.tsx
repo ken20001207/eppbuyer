@@ -58,12 +58,7 @@ class ProductCard extends React.Component<Props> {
                         <img
                             alt={product.product_name + "的商品圖片"}
                             style={{ width: "100%" }}
-                            src={
-                                "/getimage/index.php?username=" +
-                                this.props.user.user?.email +
-                                "&product_id=" +
-                                product.product_id
-                            }
+                            src={"/getimage/index.php?&product_id=" + product.product_id}
                         />
                     </Col>
                     <Col lg={6}>
