@@ -58,14 +58,14 @@ class Products extends React.Component<Props, States> {
         return (
             <Row>
                 {this.state.windowWidth >= 992 ? (
-                    <Col md={8} lg={6} xl={4}>
+                    <Col md={8} lg={4}>
                         <SideBar />
                     </Col>
                 ) : (
                     <p />
                 )}
 
-                <Col xs={24} sm={24} md={16} lg={18} xl={20}>
+                <Col xs={24} sm={24} md={16} lg={20}>
                     <div style={{ overflowY: "scroll", height: "100vh" }}>
                         {this.props.products
                             .filter((p) => p.project_name === this.props.selectedProjectName)

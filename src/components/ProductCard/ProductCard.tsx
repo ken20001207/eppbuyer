@@ -46,11 +46,14 @@ class ProductCard extends React.Component<Props> {
                 style={{
                     width: "90%",
                     margin: 36,
+                    padding: 18,
                     display: "inline-block",
                     textAlign: "left",
+                    borderRadius: 25,
+                    boxShadow: "0px 0px 10px 10px rgba(0, 0, 0, 0.05)",
                 }}
             >
-                <Row style={{ backgroundColor: "rgb(250,250,250)", borderRadius: 25 }}>
+                <Row>
                     <Col lg={6} style={{ padding: 0 }}>
                         <img
                             alt={product.product_name + "的商品圖片"}
