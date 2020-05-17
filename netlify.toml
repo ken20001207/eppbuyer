@@ -21,3 +21,9 @@
   to = "http://api.eppbuyer.com/getproducts/index.php"
   status = 200
   force = true
+  
+[[redirects]]
+  from = "/getimage/index.php"
+  to = "http://api.eppbuyer.com/getimage/index.php"
+  status = 200
+  force = true
