@@ -7,7 +7,6 @@ export default function getprojects(token: string) {
         mode: "cors",
         headers: {
             Accept: "application/json",
-            Authorization: token,
         },
     });
 }

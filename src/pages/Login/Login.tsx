@@ -1,7 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import Cookies from "universal-cookie";
 import Product from "../../classes/Product";
 import { Project } from "../../classes/Project";
 import User from "../../classes/User";
@@ -15,7 +14,6 @@ import { RootStateType } from "../../rootReducer";
 import store from "../../store";
 import "./Login.css";
 
-const cookies = new Cookies();
 interface States {
     username: string;
     password: string;
@@ -100,15 +98,9 @@ class Login extends React.Component<Props, States> {
     };
 
     login = async () => {
-        login(this.state.username, this.state.password)
-            .then((res) => {
-                if (this.state.remember)
-                    cookies.set("token", res, { expires: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) });
-                else cookies.set("token", res, { expires: new Date(Date.now() + 10 * 60 * 1000) });
-            })
-            .catch((err) => {
-                alert(err);
-            });
+        login(this.state.username, this.state.password, this.state.remember).catch((err) => {
+            alert(err);
+        });
     };
 
     hideUserNameErrMsg = () => {

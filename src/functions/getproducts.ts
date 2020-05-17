@@ -7,7 +7,6 @@ export default function getproducts(token: string, ProjectName: string) {
         mode: "cors",
         headers: {
             Accept: "application/json",
-            Authorization: token,
         },
     });
 }

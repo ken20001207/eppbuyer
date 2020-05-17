@@ -31,7 +31,6 @@ export default function getUserData(token: string) {
             method: "GET",
             headers: {
                 Accept: "application/json",
-                Authorization: token,
             },
         }).then((res) => {
             if (res.status === 200) {

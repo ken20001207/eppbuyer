@@ -1,3 +1,4 @@
+import Cookies from "universal-cookie";
 import Area from "../classes/Area";
 import Building from "../classes/Building";
 import Color from "../classes/Color";
@@ -22,8 +23,11 @@ import {
 import store from "../store";
 import getproducts, { GetProductsResponseType } from "./getproducts";
 import getprojects, { GetProjectsResponseType } from "./getprojects";
+
+const cookies = new Cookies();
+
 /** 透過帳號密碼和伺服器換取 Token 與 User data */
-export default function login(username: string, password: string) {
+export default function login(username: string, password: string, remember: boolean) {
     return new Promise<string>((resolve, reject) => {
         fetch("/login/index.php", {
             redirect: "follow",
@@ -74,6 +78,14 @@ export default function login(username: string, password: string) {
                         return null;
                     });
 
+                    if (remember) {
+                        cookies.set("token", resdata.token, {
+                            expires: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+                        });
+                    } else {
+                        cookies.set("token", resdata.token, { expires: new Date(Date.now() + 10 * 60 * 1000) });
+                    }
+
                     store.dispatch(UpdateToken(token));
                     store.dispatch(ToggleLoadingProducts());
                     getprojects(token).then((res) => {
@@ -99,10 +111,10 @@ export default function login(username: string, password: string) {
                                     }
                                 });
                             });
-                        } else alert("獲取專案清單失敗，請聯繫客服人員 (" + res.status + ")");
+                        } else reject("獲取專案清單失敗，請聯繫客服人員 (" + res.status + ")");
                     });
                     store.dispatch(ToggleLoadingProducts());
-                    resolve(resdata.token);
+                    resolve();
                 });
             } else if (res.status === 401) {
                 reject("使用者名稱或密碼錯誤");
