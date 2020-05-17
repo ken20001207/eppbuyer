@@ -26,6 +26,7 @@ import getprojects, { GetProjectsResponseType } from "./getprojects";
 export default function login(username: string, password: string) {
     return new Promise<string>((resolve, reject) => {
         fetch("/login/index.php", {
+            redirect: "follow",
             mode: "cors",
             method: "POST",
             headers: {
