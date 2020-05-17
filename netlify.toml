@@ -1,17 +1,5 @@
 [[redirects]]
-  from = "/login/index.php"
-  to = "http://api.eppbuyer.com/login/index.php"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/getuserdata/index.php"
-  to = "http://api.eppbuyer.com/getuserdata/index.php"
-  status = 200
-  force = true
-  
-[[redirects]]
-  from = "/getprojects/index.php"
-  to = "http://api.eppbuyer.com/getprojects/index.php"
+  from = "*"
+  to = "http://api.eppbuyer.com"
   status = 200
   force = true
