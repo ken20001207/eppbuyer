@@ -1,23 +1,23 @@
 [[redirects]]
   from = "/login/index.php"
   to = "http://api.eppbuyer.com/login/index.php"
-  status = 301
+  status = 200
   force = true
 
 [[redirects]]
   from = "/getuserdata/index.php"
   to = "http://api.eppbuyer.com/getuserdata/index.php"
-  status = 301
+  status = 200
   force = true
   
 [[redirects]]
   from = "/getprojects/index.php"
   to = "http://api.eppbuyer.com/getprojects/index.php"
-  status = 301
+  status = 200
   force = true
   
 [[redirects]]
   from = "/getproducts/index.php"
   to = "http://api.eppbuyer.com/getproducts/index.php"
-  status = 301
+  status = 200
   force = true
