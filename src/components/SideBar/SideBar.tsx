@@ -1,28 +1,30 @@
 import React from "react";
-import { Col, Row } from "react-grid-system";
 import { connect } from "react-redux";
+import { Col, Row } from "rsuite";
 import Product from "../../classes/Product";
 import { Project } from "../../classes/Project";
 import User from "../../classes/User";
 import getproducts, { GetProductsResponseType } from "../../functions/getproducts";
 import { UpdateProduct } from "../../redux/products/actions";
-import { SelectProject } from "../../redux/system/actions";
+import { SelectProject, ToggleLoadingProducts } from "../../redux/system/actions";
 import { UpdateUser } from "../../redux/user/actions";
+import { UserStateType } from "../../redux/user/types";
 import { RootStateType } from "../../rootReducer";
 import store from "../../store";
 import "./SideBar.css";
 
-interface States {}
-
 interface Props {
-    user: User | undefined;
+    user: UserStateType;
     token: string | undefined;
     selectedProjectID: string | undefined;
     projects: Array<Project>;
     updateUser: (user: User) => void;
     updateProduct: (product: Product) => void;
     selectProject: (id: string) => void;
+    toggleLoadingProducts: () => void;
 }
+
+interface States {}
 
 function mapStateToProps(state: RootStateType) {
     return {
@@ -38,61 +40,38 @@ function mapDispatchToProps(dispatch: typeof store.dispatch) {
         updateUser: (user: User) => dispatch(UpdateUser(user)),
         updateProduct: (product: Product) => dispatch(UpdateProduct(product)),
         selectProject: (id: string) => dispatch(SelectProject(id)),
+        toggleLoadingProducts: () => dispatch(ToggleLoadingProducts()),
     };
 }
 
 class SideBar extends React.Component<Props, States> {
     render() {
-        if (this.props.user !== undefined)
+        if (this.props.user.user !== undefined)
             return (
-                <div className="sidebar" style={{ width: 250 }}>
+                <div className="sidebar" style={{ width: "100%" }}>
                     <Row>
                         <Col>
-                            <p
-                                style={{
-                                    color: "rgb(180,180,180)",
-                                    fontSize: 14,
-                                }}
-                            >
-                                當前登入用戶
-                            </p>
-                            <p
-                                style={{
-                                    color: "rgb(250,250,250)",
-                                    fontSize: 24,
-                                }}
-                            >
-                                {this.props.user.id}
-                            </p>
-                            <p
-                                style={{
-                                    color: "rgb(180,180,180)",
-                                    fontSize: 18,
-                                }}
-                            >
-                                {this.props.user.email}
-                            </p>
+                            <p className="p1">當前登入用戶</p>
+                            <p className="p2">{this.props.user.user.email}</p>
                         </Col>
                     </Row>
                     <Row style={{ marginTop: 24 }}>
                         <Col>
-                            <p
-                                style={{
-                                    color: "rgb(180,180,180)",
-                                    fontSize: 14,
-                                }}
-                            >
-                                當前選擇專案
-                            </p>
+                            <p className="p1">當前選擇專案</p>
                             <select
                                 value={this.props.selectedProjectID}
                                 onChange={(e) => {
                                     if (this.props.token !== undefined) {
-                                        getproducts(this.props.token, e.target.value).then(async (res) => {
+                                        this.props.toggleLoadingProducts();
+                                        getproducts(this.props.token, e.target.value).then((res) => {
                                             if (res.status === 200) {
-                                                const resdata = ((await res.json()) as unknown) as GetProductsResponseType;
-                                                resdata.products.map((p) => {
-                                                    this.props.updateProduct(new Product(p));
+                                                res.json().then((res) => {
+                                                    const resdata = (res as unknown) as GetProductsResponseType;
+                                                    resdata.products.map((p) => {
+                                                        this.props.updateProduct(new Product(p));
+                                                        return null;
+                                                    });
+                                                    this.props.toggleLoadingProducts();
                                                 });
                                             }
                                         });

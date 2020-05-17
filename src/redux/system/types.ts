@@ -10,9 +10,15 @@ export interface UpdateTokenAction {
     data: string;
 }
 
-export type SystemActions = SelectProjectAction | UpdateTokenAction;
+export const TOGGLE_LOADING_PRODUCTS = "TOGGLE_LOADING_PRODUCTS";
+export interface ToggleLoadingProductsAction {
+    type: typeof TOGGLE_LOADING_PRODUCTS;
+}
+
+export type SystemActions = SelectProjectAction | UpdateTokenAction | ToggleLoadingProductsAction;
 
 export interface SystemStateType {
     selectedProjectName: string | undefined;
     token: string | undefined;
+    loadingProducts: boolean;
 }

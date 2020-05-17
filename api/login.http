@@ -1,0 +1,8 @@
+POST http://api.eppbuyer.com/login/index.php
+Content-Type: application/json
+Accept: application/json
+
+{
+    "username": "qekqoc@gmail.com",
+    "password": "aa888888"
+}

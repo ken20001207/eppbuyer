@@ -8,13 +8,7 @@
     overflow: hidden;
     font-family: "Noto Sans TC", sans-serif;
     background: #ea5c54;
-    background: linear-gradient(
-        60deg,
-        #858585 0%,
-        #cecece 35%,
-        #cecece 55%,
-        #808080 100%
-    );
+    background: linear-gradient(60deg, #858585 0%, #cecece 35%, #cecece 55%, #808080 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#EA5C54 ', endColorstr='#bb6dec',GradientType=1 );
 }
 
@@ -32,12 +26,10 @@
     opacity: 1;
     top: 20px;
     -webkit-transition-timing-function: cubic-bezier(0.68, -0.25, 0.265, 0.85);
-    -webkit-transition-property: opacity, box-shadow, top, left,
-        -webkit-transform;
+    -webkit-transition-property: opacity, box-shadow, top, left, -webkit-transform;
     transition-property: opacity, box-shadow, top, left, -webkit-transform;
     transition-property: transform, opacity, box-shadow, top, left;
-    transition-property: transform, opacity, box-shadow, top, left,
-        -webkit-transform;
+    transition-property: transform, opacity, box-shadow, top, left, -webkit-transform;
     -webkit-transition-duration: 0.5s;
     transition-duration: 0.5s;
     -webkit-transform-origin: 161px 100%;
@@ -54,7 +46,7 @@
     margin: auto;
     top: 0;
     bottom: 0;
-    padding: 100px 40px 40px 40px;
+    padding: 60px 40px 40px 40px;
     background: #35394a;
     background: linear-gradient(45deg, #35394aee 0%, #1f222eee 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#35394a', endColorstr='#1f222e',GradientType=1 );
@@ -65,7 +57,7 @@
     position: absolute;
     z-index: 1;
     right: 10px;
-    top: 4px;
+    top: 30px;
     /* opacity: 0;   */
 }
 
@@ -83,7 +75,7 @@
     font-weight: 100;
     position: absolute;
     bottom: 20px;
-    left: 110px;
+    left: 80px;
 }
 
 .login .disclaimer p {
@@ -117,7 +109,7 @@
 .login_fields input[type="password"] {
     caret-color: #2b63fd;
     color: #afb1be;
-    width: 190px;
+    width: 100%;
     margin-top: -2px;
     background: #2c2f3a;
     left: 0;
@@ -136,9 +128,9 @@
 }
 .login_fields__submit {
     position: relative;
-    top: 35px;
+    top: 60px;
     left: 0;
-    width: 80%;
+    width: 50%;
     right: 0;
     margin: auto;
 }
@@ -189,7 +181,7 @@
 
 .login_fields__remember {
     position: relative;
-    padding-left: 34px;
+    padding-left: 78px;
     padding-top: 10px;
 }
 
@@ -200,13 +192,12 @@
     margin: 0;
     vertical-align: bottom;
     position: relative;
-    top: -2px;
+    top: -6px;
     *overflow: hidden;
 }
 
 .login_fields__remember label {
     padding-left: 8px;
-    text-indent: -15px;
     color: #cacaca;
     font-size: 13px;
 }

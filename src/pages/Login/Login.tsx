@@ -5,13 +5,12 @@ import Cookies from "universal-cookie";
 import Product from "../../classes/Product";
 import { Project } from "../../classes/Project";
 import User from "../../classes/User";
-import getproducts, { GetProductsResponseType } from "../../functions/getproducts";
-import getprojects, { GetProjectsResponseType } from "../../functions/getprojects";
-import login, { LoginResponseType } from "../../functions/login";
+import login from "../../functions/login";
 import { UpdateProduct } from "../../redux/products/actions";
 import { UpdateProject } from "../../redux/projects/actions";
-import { SelectProject, UpdateToken } from "../../redux/system/actions";
+import { SelectProject, ToggleLoadingProducts, UpdateToken } from "../../redux/system/actions";
 import { UpdateUser } from "../../redux/user/actions";
+import { UserStateType } from "../../redux/user/types";
 import { RootStateType } from "../../rootReducer";
 import store from "../../store";
 import "./Login.css";
@@ -27,12 +26,13 @@ interface States {
 }
 
 interface Props {
-    user: User;
+    user: UserStateType;
     updateUser: (user: User) => void;
     updateToken: (token: string) => void;
     updateProject: (project: Project) => void;
     updateProduct: (product: Product) => void;
     selectProject: (id: string) => void;
+    toggleLoadingProducts: () => void;
 }
 
 function mapStateToProps(state: RootStateType) {
@@ -48,6 +48,7 @@ function mapDispatchToProps(dispatch: typeof store.dispatch) {
         updateProject: (project: Project) => dispatch(UpdateProject(project)),
         updateProduct: (product: Product) => dispatch(UpdateProduct(product)),
         selectProject: (id: string) => dispatch(SelectProject(id)),
+        toggleLoadingProducts: () => dispatch(ToggleLoadingProducts()),
     };
 }
 
@@ -99,39 +100,15 @@ class Login extends React.Component<Props, States> {
     };
 
     login = async () => {
-        login(this.state.username, this.state.password).then(async (res) => {
-            if (res.status === 200) {
-                const resdata = ((await res.json()) as unknown) as LoginResponseType;
-                const token = resdata.token;
-                this.props.updateUser(new User(resdata.userdata));
-                this.props.updateToken(token);
-                getprojects(token).then(async (res) => {
-                    if (res.status === 200) {
-                        const resdata = ((await res.json()) as unknown) as GetProjectsResponseType;
-                        resdata.projects.map((p) => {
-                            this.props.updateProject(new Project(p));
-                            return null;
-                        });
-                        this.props.selectProject(resdata.projects[0].project_name);
-                        getproducts(token, resdata.projects[0].project_name).then(async (res) => {
-                            if (res.status === 200) {
-                                const resdata = ((await res.json()) as unknown) as GetProductsResponseType;
-                                resdata.products.map((p) => {
-                                    this.props.updateProduct(new Product(p));
-                                    return null;
-                                });
-                            }
-                        });
-                    } else alert("獲取專案清單失敗，請聯繫客服人員 (" + res.status + ")");
-                });
-                this.setState({ redirectTo: "/products" });
-                if (this.state.remember) cookies.set("token", resdata.token);
-            } else if (res.status === 404) {
-                alert("使用者名稱或密碼錯誤");
-            } else {
-                alert("伺服器發生錯誤，請聯繫客服中心");
-            }
-        });
+        login(this.state.username, this.state.password)
+            .then((res) => {
+                if (this.state.remember)
+                    cookies.set("token", res, { expires: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) });
+                else cookies.set("token", res, { expires: new Date(Date.now() + 10 * 60 * 1000) });
+            })
+            .catch((err) => {
+                alert(err);
+            });
     };
 
     hideUserNameErrMsg = () => {
@@ -153,7 +130,7 @@ class Login extends React.Component<Props, States> {
     };
 
     render() {
-        if (this.props.user.id !== "") {
+        if (this.props.user.user !== undefined) {
             return <Redirect to="/products" />;
         }
         return (
@@ -170,7 +147,10 @@ class Login extends React.Component<Props, States> {
                     <div className="login_fields">
                         <div className="login_fields__user">
                             <div className="icon">
-                                <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/user_icon_copy.png" alt="" />
+                                <img
+                                    src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/user_icon_copy.png"
+                                    alt=""
+                                />
                             </div>
                             <input
                                 name="username"
@@ -198,7 +178,10 @@ class Login extends React.Component<Props, States> {
                         </div>
                         <div className="login_fields__password">
                             <div className="icon">
-                                <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/lock_icon_copy.png" alt="" />
+                                <img
+                                    src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/lock_icon_copy.png"
+                                    alt=""
+                                />
                             </div>
                             <input
                                 name="password"
@@ -234,7 +217,7 @@ class Login extends React.Component<Props, States> {
                                     })
                                 }
                             />
-                            <label htmlFor="checkbox">保持登入狀態</label>
+                            <label htmlFor="checkbox">保持登入 14 天</label>
                             <br />
                         </div>
                         <div className="login_fields__submit">
