@@ -3,14 +3,10 @@ import Area from "../classes/Area";
 import Building from "../classes/Building";
 import Color from "../classes/Color";
 import Currency from "../classes/Currency";
-import Product from "../classes/Product";
 import ProductType from "../classes/ProductType";
-import { Project } from "../classes/Project";
 import Size from "../classes/Size";
 import User from "../classes/User";
-import { UpdateProduct } from "../redux/products/actions";
-import { UpdateProject } from "../redux/projects/actions";
-import { SelectProject, ToggleLoadingProducts, UpdateToken } from "../redux/system/actions";
+import { ToggleLoadingProducts } from "../redux/system/actions";
 import {
     UpdateArea,
     UpdateBuilding,
@@ -21,8 +17,7 @@ import {
     UpdateUser,
 } from "../redux/user/actions";
 import store from "../store";
-import getproducts, { GetProductsResponseType } from "./getproducts";
-import getprojects, { GetProjectsResponseType } from "./getprojects";
+import getprojects from "./getprojects";
 
 const cookies = new Cookies();
 
@@ -45,7 +40,6 @@ export default function login(username: string, password: string, remember: bool
             if (res.status === 200) {
                 res.json().then((res) => {
                     const resdata = (res as unknown) as LoginResponseType;
-                    const token = resdata.token;
                     store.dispatch(UpdateUser(new User(resdata.userdata)));
 
                     resdata.areas.map((area) => {
@@ -78,43 +72,15 @@ export default function login(username: string, password: string, remember: bool
                         return null;
                     });
 
-                    if (remember) {
-                        cookies.set("token", resdata.token, {
+                    const token = resdata.token;
+                    if (remember)
+                        cookies.set("token", token, {
                             expires: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
                         });
-                    } else {
-                        cookies.set("token", resdata.token, { expires: new Date(Date.now() + 10 * 60 * 1000) });
-                    }
+                    else cookies.set("token", token, { expires: new Date(Date.now() + 10 * 60 * 1000) });
 
-                    store.dispatch(UpdateToken(token));
                     store.dispatch(ToggleLoadingProducts());
-                    getprojects(token).then((res) => {
-                        if (res.status === 200) {
-                            res.json().then((res) => {
-                                const resdata = (res as unknown) as GetProjectsResponseType;
-                                resdata.projects.map((p) => {
-                                    store.dispatch(UpdateProject(new Project(p)));
-                                    return null;
-                                });
-                                store.dispatch(SelectProject(resdata.projects[0].project_name));
-                                store.dispatch(ToggleLoadingProducts());
-                                getproducts(token, resdata.projects[0].project_name).then((res) => {
-                                    if (res.status === 200) {
-                                        res.json().then((res) => {
-                                            const resdata = (res as unknown) as GetProductsResponseType;
-                                            resdata.products.map((p) => {
-                                                store.dispatch(UpdateProduct(new Product(p)));
-                                                return null;
-                                            });
-                                            store.dispatch(ToggleLoadingProducts());
-                                        });
-                                    }
-                                });
-                            });
-                        } else reject("獲取專案清單失敗，請聯繫客服人員 (" + res.status + ")");
-                    });
-                    store.dispatch(ToggleLoadingProducts());
-                    resolve();
+                    getprojects().catch((err) => reject(err));
                 });
             } else if (res.status === 401) {
                 reject("使用者名稱或密碼錯誤");

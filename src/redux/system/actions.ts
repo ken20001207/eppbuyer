@@ -1,16 +1,9 @@
-import { SelectProjectAction, SELECT_PROJECT, ToggleLoadingProductsAction, TOGGLE_LOADING_PRODUCTS, UpdateTokenAction, UPDATE_TOKEN } from "./types";
+import { SelectProjectAction, SELECT_PROJECT, ToggleLoadingProductsAction, TOGGLE_LOADING_PRODUCTS } from "./types";
 
-export function SelectProject(projectID: string): SelectProjectAction {
+export function SelectProject(projectID: string | undefined): SelectProjectAction {
     return {
         type: SELECT_PROJECT,
         data: projectID,
-    };
-}
-
-export function UpdateToken(token: string): UpdateTokenAction {
-    return {
-        type: UPDATE_TOKEN,
-        data: token,
     };
 }
 

@@ -15,12 +15,11 @@ import "./SideBar.css";
 
 interface Props {
     user: UserStateType;
-    token: string | undefined;
     selectedProjectID: string | undefined;
     projects: Array<Project>;
     updateUser: (user: User) => void;
     updateProduct: (product: Product) => void;
-    selectProject: (id: string) => void;
+    selectProject: (id: string | undefined) => void;
     toggleLoadingProducts: () => void;
 }
 
@@ -29,7 +28,6 @@ interface States {}
 function mapStateToProps(state: RootStateType) {
     return {
         user: state.user,
-        token: state.system.token,
         projects: state.projects,
         selectedProjectID: state.system.selectedProjectName,
     };
@@ -39,7 +37,7 @@ function mapDispatchToProps(dispatch: typeof store.dispatch) {
     return {
         updateUser: (user: User) => dispatch(UpdateUser(user)),
         updateProduct: (product: Product) => dispatch(UpdateProduct(product)),
-        selectProject: (id: string) => dispatch(SelectProject(id)),
+        selectProject: (id: string | undefined) => dispatch(SelectProject(id)),
         toggleLoadingProducts: () => dispatch(ToggleLoadingProducts()),
     };
 }
@@ -50,10 +48,8 @@ class SideBar extends React.Component<Props, States> {
             return (
                 <div className="sidebar" style={{ width: "100%" }}>
                     <Row>
-                        <Col>
-                            <p className="p1">當前登入用戶</p>
-                            <p className="p2">{this.props.user.user.email}</p>
-                        </Col>
+                        <p className="p1">當前登入用戶</p>
+                        <p className="p2">{this.props.user.user.email}</p>
                     </Row>
                     <Row style={{ marginTop: 24 }}>
                         <Col>
@@ -61,24 +57,27 @@ class SideBar extends React.Component<Props, States> {
                             <select
                                 value={this.props.selectedProjectID}
                                 onChange={(e) => {
-                                    if (this.props.token !== undefined) {
-                                        this.props.toggleLoadingProducts();
-                                        getproducts(this.props.token, e.target.value).then((res) => {
-                                            if (res.status === 200) {
-                                                res.json().then((res) => {
-                                                    const resdata = (res as unknown) as GetProductsResponseType;
-                                                    resdata.products.map((p) => {
-                                                        this.props.updateProduct(new Product(p));
-                                                        return null;
-                                                    });
-                                                    this.props.toggleLoadingProducts();
-                                                });
-                                            }
-                                        });
-                                        this.props.selectProject(e.target.value);
+                                    if (e.target.value === "未選擇專案") {
+                                        this.props.selectProject(undefined);
+                                        return;
                                     }
+                                    this.props.toggleLoadingProducts();
+                                    getproducts(e.target.value).then((res) => {
+                                        if (res.status === 200) {
+                                            res.json().then((res) => {
+                                                const resdata = (res as unknown) as GetProductsResponseType;
+                                                resdata.products.map((p) => {
+                                                    this.props.updateProduct(new Product(p));
+                                                    return null;
+                                                });
+                                                this.props.toggleLoadingProducts();
+                                            });
+                                        }
+                                    });
+                                    this.props.selectProject(e.target.value);
                                 }}
                             >
+                                <option value={undefined}>未選擇專案</option>
                                 {this.props.projects.map((p) => {
                                     return (
                                         <option key={p.project_name} value={p.project_name}>

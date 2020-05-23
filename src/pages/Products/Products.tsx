@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import { Col, Row } from "rsuite";
+import { Animation, Col, Row } from "rsuite";
 import Product from "../../classes/Product";
 import User from "../../classes/User";
 import ProductCard from "../../components/ProductCard/ProductCard";
@@ -10,6 +10,8 @@ import { UpdateUser } from "../../redux/user/actions";
 import { UserStateType } from "../../redux/user/types";
 import { RootStateType } from "../../rootReducer";
 import store from "../../store";
+
+const { Fade } = Animation;
 
 interface Props {
     user: UserStateType;
@@ -64,17 +66,24 @@ class Products extends React.Component<Props, States> {
                 ) : (
                     <p />
                 )}
-
-                <Col xs={24} sm={24} md={16} lg={20}>
-                    <div style={{ overflowY: "scroll", height: "100vh" }}>
-                        {this.props.products
-                            .filter((p) => p.project_name === this.props.selectedProjectName)
-                            .slice(0, 50)
-                            .map((product) => (
-                                <ProductCard product={product} />
-                            ))}
-                    </div>
-                </Col>
+                {this.props.selectedProjectName === undefined ? (
+                    <h2>請先選擇專案</h2>
+                ) : (
+                    <Col xs={24} sm={24} md={16} lg={20}>
+                        <Fade in={!this.props.loadingProducts}>
+                            <div style={{ overflowY: "scroll", height: "100vh" }}>
+                                <Row>
+                                    {this.props.products
+                                        .filter((p) => p.project_name === this.props.selectedProjectName)
+                                        .slice(0, 50)
+                                        .map((product) => (
+                                            <ProductCard product={product} />
+                                        ))}
+                                </Row>
+                            </div>
+                        </Fade>
+                    </Col>
+                )}
             </Row>
         );
     }

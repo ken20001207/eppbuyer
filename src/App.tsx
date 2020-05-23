@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
+import { Alert } from "rsuite";
 import "rsuite/dist/styles/rsuite-default.css";
 import Cookies from "universal-cookie";
 import "./App.css";
@@ -12,7 +13,7 @@ import Login from "./pages/Login/Login";
 import Products from "./pages/Products/Products";
 import { UpdateProduct } from "./redux/products/actions";
 import { UpdateProject } from "./redux/projects/actions";
-import { SelectProject, ToggleLoadingProducts, UpdateToken } from "./redux/system/actions";
+import { SelectProject, ToggleLoadingProducts } from "./redux/system/actions";
 import { UpdateUser } from "./redux/user/actions";
 import { UserStateType } from "./redux/user/types";
 import { RootStateType } from "./rootReducer";
@@ -21,7 +22,6 @@ const cookies = new Cookies();
 interface Props {
     user: UserStateType;
     updateUser: (user: User) => void;
-    updateToken: (token: string) => void;
     updateProject: (project: Project) => void;
     updateProduct: (product: Product) => void;
     selectProject: (id: string) => void;
@@ -41,7 +41,6 @@ function mapStateToProps(state: RootStateType) {
 function mapDispatchToProps(dispatch: typeof store.dispatch) {
     return {
         updateUser: (user: User) => dispatch(UpdateUser(user)),
-        updateToken: (token: string) => dispatch(UpdateToken(token)),
         updateProject: (project: Project) => dispatch(UpdateProject(project)),
         updateProduct: (product: Product) => dispatch(UpdateProduct(product)),
         selectProject: (id: string) => dispatch(SelectProject(id)),
@@ -60,7 +59,7 @@ class App extends React.Component<Props, States> {
     componentDidMount = () => {
         const token = cookies.get("token");
         if (token !== undefined) {
-            getUserData(token).catch((err) => alert(err));
+            getUserData().catch((err) => Alert.error(err));
         }
     };
 
