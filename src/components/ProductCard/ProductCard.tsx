@@ -1,4 +1,6 @@
 import React from "react";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css";
 import { connect } from "react-redux";
 import { Button, Col, Drawer, Row } from "rsuite";
 import Product from "../../classes/Product";
@@ -59,10 +61,11 @@ class ProductCard extends React.Component<Props, States> {
                         borderRadius: 24,
                     }}
                 >
-                    <img
+                    <LazyLoadImage
                         alt={product.product_name + "的商品圖片"}
-                        style={{ borderRadius: 24, objectFit: "cover", width: "100%", height: 300 }}
+                        height={300}
                         src={"/getimage/index.php?&product_id=" + product.product_id}
+                        width="100%"
                     />
                     <Row style={{ padding: 24 }}>
                         <Col sm={12} style={{ padding: 8 }}>
